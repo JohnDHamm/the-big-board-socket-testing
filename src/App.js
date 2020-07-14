@@ -2,6 +2,7 @@ import React from "react"
 import logo from "./logo.svg"
 import "./App.css"
 import socketIOClient from "socket.io-client"
+import axios from "axios"
 
 const ROOT_URL = "http://localhost:4001"
 const socket = socketIOClient(ROOT_URL)
@@ -24,10 +25,10 @@ const users = [
 const SocketListener = ({children}) => {
   React.useEffect(() => {
     socket.on("JoinRoomWelcome", (msg) => console.log("msg", msg))
-    socket.on("TestSocket", (data) => console.log("Pick made:", data))
     socket.on("UpdateConnected", (data) =>
       console.log("update connected", data)
     )
+    socket.on("PickMade", (pick) => console.log("pick made", pick))
     return () => socket.disconnect()
   }, [])
 
@@ -50,12 +51,10 @@ function App() {
 
   const testApi = (pick) => {
     console.log("testApi")
-    socket.emit("test pick", {pick: pick, socketRoom: room})
+    axios
+      .post(`${ROOT_URL}/API/make_pick`, {pick: pick, socketRoom: room})
+      .then((res) => console.log("pick confirmation:", res.data))
   }
-
-  // React.useEffect(() => {
-
-  // }, [room])
 
   return (
     <SocketListener>
